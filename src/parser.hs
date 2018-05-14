@@ -10,27 +10,27 @@ parseAdventureFile input = parse adventureFile "(unknown)" input
 adventureFile :: GenParser Char st GameData
 adventureFile = do
     locations <- getString "locations:" >> getMap getLocationBody
-    string ","
+    comma
     current <- getString "current:" >> getWord
-    string ","
+    comma
     backpack <- getString "backpack:" >> getObjectsMap
-    string ","
+    comma
     actions <- getString "actions:" >> getMap getActionBody
-    getString ","
+    comma
     flags <- getString "flags:" >> getFlagList
     eof
     return (GameData locations current backpack actions flags)
 
-    
+
 getLocationBody :: GenParser Char st Location
 getLocationBody = do
     getString "("
     description <- getInfo
-    getString ","
+    comma
     moves <- getMap getWord
-    getString ","
+    comma
     objects <- getObjectsMap
-    getString ","
+    comma
     flags <- getFlagList
     return (Location description moves objects flags)
 
@@ -44,16 +44,17 @@ getObjectBody :: GenParser Char st Object
 getObjectBody = do
     getString "("
     info <- getInfo
-    getString ","
+    comma
     interAction <- getWord
-    getString ","
+    comma
     useAction <- getWord
-    getString ","
+    comma
     flags <- getFlagList
     return (Object info interAction useAction flags)
 
 getWord :: GenParser Char st String
 getWord = many (alphaNum <|> (char '_')) 
+
 
 getString :: String-> GenParser Char st String
 getString [] = return ""
@@ -64,6 +65,9 @@ getString (c:cs) = do
     tail <- getString cs
     return (c:tail)
 
+comma :: GenParser Char st String
+comma = getString ","
+
 getInfo ::  GenParser Char st String
 getInfo = do
     string "\""
@@ -72,13 +76,13 @@ getInfo = do
     return ("\"" ++ content ++ "\"")
 
 getFlagList :: GenParser Char st [String]
-getFlagList = sepBy getWord (getString ",")
+getFlagList = sepBy getWord (comma)
 
 
 getMap :: GenParser Char st a -> GenParser Char st (Map String a)
 getMap getBody = do
     getString "["
-    list <- sepBy (getMapElement getBody) (getString ",")
+    list <- sepBy (getMapElement getBody) (comma)
     getString "]"
     return $ fromList list
 
@@ -86,7 +90,7 @@ getMapElement :: GenParser Char st a -> GenParser Char st (String, a)
 getMapElement getBody = do
     getString "("
     id <- getWord
-    getString ","
+    comma
     body <-getBody
     getString ")"
     return (id,body)
