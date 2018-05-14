@@ -1,46 +1,140 @@
--- file: ch16/csv1.hs
+module Parser where
 import Text.ParserCombinators.Parsec
+import Data.Map.Lazy hiding (foldl,map)
 
-{- A CSV file contains 0 or more lines, each of which is terminated
-   by the end-of-line character (eol). -}
-csvFile :: GenParser Char st [[String]]
-csvFile = 
-    do result <- many line
-       eof
-       return result
+import DataModel
 
--- Each line contains 1 or more cells, separated by a comma
-line :: GenParser Char st [String]
-line = 
-    do result <- cells
-       eol                       -- end of line
-       return result
-       
--- Build up a list of cells.  Try to parse the first cell, then figure out 
--- what ends the cell.
-cells :: GenParser Char st [String]
-cells = 
-    do first <- cellContent
-       next <- remainingCells
-       return (first : next)
+parseAdventureFile :: String -> Either ParseError GameData
+parseAdventureFile input = parse adventureFile "(unknown)" input
 
--- The cell either ends with a comma, indicating that 1 or more cells follow,
--- or it doesn't, indicating that we're at the end of the cells for this line
-remainingCells :: GenParser Char st [String]
-remainingCells =
-    (char ',' >> cells)            -- Found comma?  More cells coming
-    <|> (return [])                -- No comma?  Return [], no more cells
+adventureFile :: GenParser Char st GameData
+adventureFile = 
+    do
+        locations <- getLocations
+        string ","
+        current <- getCurrent
+        string ","
+        backpack <- getBackpack
+        string ","
+        flags <- getFlags
+        eof
+        return (GameData locations current backpack flags)
 
--- Each cell contains 0 or more characters, which must not be a comma or
--- EOL
-cellContent :: GenParser Char st String
-cellContent = 
-    many (noneOf ",\n")
-       
+getCurrent :: GenParser Char st LocationId
+getCurrent = do 
+    getString "current:"
+    result <-  getWord
+    return result
+    
+getWord :: GenParser Char st String
+getWord = many alphaNum 
 
--- The end of line character is \n
-eol :: GenParser Char st Char
-eol = char '\n'
+getInfo ::  GenParser Char st String
+getInfo = do
+    string "\""
+    content <- many (noneOf "\"") 
+    string "\""
+    return ("\"" ++ content ++ "\"")
 
-parseCSV :: String -> Either ParseError [[String]]
-parseCSV input = parse csvFile "(unknown)" input
+getFlags :: GenParser Char st [String]
+getFlags = do 
+    getString "flags:["
+    result <- getFlagList
+    getString "]"
+    return result
+
+getFlagList :: GenParser Char st [String]
+getFlagList = sepBy getWord (getString ",")
+
+getBackpack :: GenParser Char st (Map ObjectId Object) 
+getBackpack = do
+    getString "backpack:["
+    getObjectsMap
+
+getObjectsMap :: GenParser Char st (Map ObjectId Object) 
+getObjectsMap = do
+    getString "["
+    objects <- sepBy getObject (getString ",")
+    getString "]"
+    return (fromList objects)
+
+getObject :: GenParser Char st (ObjectId, Object) 
+getObject = do
+    getString "("
+    id <- getWord
+    getString ","
+    body <-getObjectBody
+    getString ")"
+    return (id,body)
+
+getObjectBody :: GenParser Char st Object
+getObjectBody = do
+    getString "("
+    info <- getInfo
+    getString ","
+    interAction <- getAction
+    getString ","
+    useAction <- getAction
+    getString ","
+    flags <- getFlagList
+    return (Object info interAction useAction flags)
+
+getAction :: GenParser Char st String
+getAction = return ""
+
+getString :: String-> GenParser Char st String
+getString [] = return ""
+getString (c:cs) = do
+    optional (char '\n')
+    char c
+    optional (char '\n')
+    tail <- getString cs
+    return (c:tail)
+
+getLocations :: GenParser Char st (Map LocationId Location)
+getLocations = do
+    getString "locations:["
+    locations <- sepBy getLocation (getString ",")
+    getString "]"
+    return (fromList locations)
+
+getLocation ::GenParser Char st (LocationId, Location)
+getLocation = do
+    getString "("
+    id <- getWord
+    getString ","
+    body <-getLocationBody
+    getString ")"
+    return (id,body)
+
+
+getLocationBody :: GenParser Char st Location
+getLocationBody = do
+    getString "("
+    description <- getInfo
+    getString ","
+    moves <- getMovesMap
+    objects <- getObjectsMap
+    getString ","
+    getString ","
+    flags <- getFlagList
+    return (Location description moves objects flags)
+
+    
+getMovesMap :: GenParser Char st (Map Direction LocationId )
+getMovesMap = do
+    getString "["
+    locations <- sepBy getMove (getString ",")
+    getString "]"
+    return (fromList locations)
+        
+getMove ::GenParser Char st (Direction, LocationId)
+getMove = do
+    getString "("
+    direction <- getWord
+    getString ","
+    locationId <- getWord
+    getString ")"
+    return (direction, locationId)
+
+
