@@ -9,8 +9,11 @@ import Prelude hiding (Word)
 import DataModel
 import Parser
 
+import ActionModel
+
 main::IO ()
-main = putStrLn "Hello World" >> getLine >>= (putStrLn . show . parseAdventureFile) >> return () 
+main =  putStrLn "Hello World" >> return ()
+-- main = putStrLn "Hello World" >> getLine >>= (putStrLn . show . parseAdventureFile) >> return () 
 
 -- main::IO()
 -- main = mainLoop

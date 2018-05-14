@@ -1,14 +1,17 @@
-Locations:
+locations:
 [
     (Bedroom,[],[],[])
 ],
-Current:
+current:
     Bedroom,
-Backpack:
+backpack:
 [
     (tbo,("test backpack object",[],NonInterAction,NonUseAction))
 ],
-Flags:
+actions:
+[
+]
+flags:
 [
     TestFlag,
     AnotherTestFlag
