@@ -17,9 +17,11 @@ adventureFile = do
     comma
     actions <- getString "actions:" >> getMap getActionBody
     comma
+    useActions <- getString "use actions:" >> getMap getUseActionBody
+    comma
     flags <- getString "flags:" >> getFlagList
     eof
-    return (GameData locations current backpack actions flags)
+    return (GameData locations current backpack actions useActions flags)
 
 
 getLocationBody :: GenParser Char st Location
@@ -32,7 +34,17 @@ getLocationBody = do
     objects <- getObjectsMap
     comma
     flags <- getFlagList
+    getString ")"
     return (Location description moves objects flags)
+
+getUseActionBody :: GenParser Char st (ObjectId, Action)
+getUseActionBody = do
+    getString "("
+    id <- getWord
+    comma
+    action <- getActionBody
+    getString ")"
+    return (id, action)
 
 getActionBody :: GenParser Char st Action
 getActionBody = return ""
@@ -50,6 +62,7 @@ getObjectBody = do
     useAction <- getWord
     comma
     flags <- getFlagList
+    getString ")"
     return (Object info interAction useAction flags)
 
 getWord :: GenParser Char st String
@@ -77,7 +90,6 @@ getInfo = do
 
 getFlagList :: GenParser Char st [String]
 getFlagList = sepBy getWord (comma)
-
 
 getMap :: GenParser Char st a -> GenParser Char st (Map String a)
 getMap getBody = do

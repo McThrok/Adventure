@@ -7,8 +7,8 @@ import Data.Map.Lazy hiding (foldl,map)
 
 data Object = Object{
     info::String,
-    interact::InterAction,
-    use::UseAction,
+    interact::ActionId,
+    use::ActionId,
     objectFlags::[Flag] -- includes canBeTaken
 }
 
@@ -23,7 +23,8 @@ data GameData = GameData{
     locations::Map LocationId Location,
     current::LocationId,
     backpack::Map ObjectId Object,
-    actions::Map ActionId Action,
+    interActions::Map ActionId Action,
+    useActions::Map ActionId (ObjectId, Action),
     gameFlags::[Flag] -- include Won and Lost
 }
 
@@ -38,15 +39,13 @@ data Command = Go | Take | Use | Look | Interact | Inventory | Save | Load | New
 
 -- data Value = Object Object | Location Location | Movement Dircetion LocationId | Flag Flag | UseAction UseAction | InterAction InterAction
 
-type Action = String
-
 type Direction = String
 type ObjectId = String
-type ActionId = String
 type LocationId = String
+type ActionId = String
+type UseActionId = String
+
 type Flag = String
-type UseAction = ActionId
--- type InterAction = (ActionId, ObjectId) -- Action ObjectId
-type InterAction = ActionId
+type Action = String --tmp
 
 type GameStateT a = StateT GameData IO a
