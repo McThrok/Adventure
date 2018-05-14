@@ -16,28 +16,16 @@ adventureFile =
         string ","
         backpack <- getBackpack
         string ","
+        actions <- getActionsMap
+        getString ","
         flags <- getFlags
         eof
-        return (GameData locations current backpack flags)
+        return (GameData locations current backpack actions flags)
 
 
 --locations
 getLocations :: GenParser Char st (Map LocationId Location)
-getLocations = do
-    getString "locations:["
-    locations <- sepBy getLocation (getString ",")
-    getString "]"
-    return (fromList locations)
-
-getLocation ::GenParser Char st (LocationId, Location)
-getLocation = do
-    getString "("
-    id <- getWord
-    getString ","
-    body <-getLocationBody
-    getString ")"
-    return (id,body)
-    
+getLocations = getString "locations:" >> getMap getLocationBody
 
 getLocationBody :: GenParser Char st Location
 getLocationBody = do
@@ -45,34 +33,20 @@ getLocationBody = do
     description <- getInfo
     getString ","
     moves <- getMovesMap
-    objects <- getObjectsMap
     getString ","
+    objects <- getObjectsMap
     getString ","
     flags <- getFlagList
     return (Location description moves objects flags)
 
 getMovesMap :: GenParser Char st (Map Direction LocationId )
-getMovesMap = do
-    getString "["
-    locations <- sepBy getMove (getString ",")
-    getString "]"
-    return (fromList locations)
-        
-getMove ::GenParser Char st (Direction, LocationId)
-getMove = do
-    getString "("
-    direction <- getWord
-    getString ","
-    locationId <- getWord
-    getString ")"
-    return (direction, locationId)
-
+getMovesMap = getMap getWord
 
 --current
 getCurrent :: GenParser Char st LocationId
 getCurrent = do 
     getString "current:"
-    result <-  getWord
+    result <- getWord
     return result
 
 
@@ -93,36 +67,27 @@ getFlags = do
 
 --object helpers
 getObjectsMap :: GenParser Char st (Map ObjectId Object) 
-getObjectsMap = do
-    getString "["
-    objects <- sepBy getObject (getString ",")
-    getString "]"
-    return (fromList objects)
-
-getObject :: GenParser Char st (ObjectId, Object) 
-getObject = do
-    getString "("
-    id <- getWord
-    getString ","
-    body <-getObjectBody
-    getString ")"
-    return (id,body)
+getObjectsMap = getMap getObjectBody
 
 getObjectBody :: GenParser Char st Object
 getObjectBody = do
     getString "("
     info <- getInfo
     getString ","
-    interAction <- getAction
+    interAction <- getWord
     getString ","
-    useAction <- getAction
+    useAction <- getWord
     getString ","
     flags <- getFlagList
     return (Object info interAction useAction flags)
 
-getAction :: GenParser Char st String
-getAction = return ""
+--actions
 
+getActionsMap :: GenParser Char st (Map ActionId Action) 
+getActionsMap =  getMap getActionBody
+
+getActionBody :: GenParser Char st Action
+getActionBody = return ""
 
 --helpers
 
@@ -147,3 +112,20 @@ getInfo = do
 
 getFlagList :: GenParser Char st [String]
 getFlagList = sepBy getWord (getString ",")
+
+
+getMap :: GenParser Char st a -> GenParser Char st (Map String a)
+getMap getBody = do
+    getString "["
+    list <- sepBy (getMapElement getBody) (getString ",")
+    getString "]"
+    return $ fromList list
+
+getMapElement :: GenParser Char st a -> GenParser Char st (String, a)
+getMapElement getBody = do
+    getString "("
+    id <- getWord
+    getString ","
+    body <-getBody
+    getString ")"
+    return (id,body)
