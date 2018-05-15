@@ -9,7 +9,6 @@ import Prelude hiding (interact)
 
 import DataModel
 
-data Exp = Leaf [String] | Not Exp | And Exp Exp | Or Exp Exp
 
 evalExp :: Exp -> Bool
 evalExp (Leaf val) = True
@@ -17,9 +16,6 @@ evalExp (Not exp) = not $ evalExp exp
 evalExp (And e1 e2) = evalExp e1 && evalExp e2
 evalExp (Or e1 e2) = evalExp e1 || evalExp e2
 
-data Instruction = Print String | Change [String] ChangeType String | IfStatement Exp [Instruction]
-
-data ChangeType = Add | Delete | Assign
 
 checkDataContains :: GameData -> [String] -> Bool
 checkDataContains gameData ("locations":tail) = checkLocationContains (locations gameData) tail

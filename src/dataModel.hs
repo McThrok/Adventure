@@ -47,6 +47,11 @@ type ActionId = String
 type UseActionId = String
 
 type Flag = String
-type Action = String --tmp
+type Action = [Instruction]
+
+data Instruction = Print String | Change [String] ChangeType String | IfStatement Exp [Instruction]
+data ChangeType = Add | Delete | Assign
+
+data Exp = Leaf [String] | Not Exp | And Exp Exp | Or Exp Exp
 
 type GameStateT a = StateT GameData IO a

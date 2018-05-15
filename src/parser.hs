@@ -48,7 +48,7 @@ getUseActionBody = do
     return (id, action)
 
 getActionBody :: GenParser Char st Action
-getActionBody = return ""
+getActionBody = return []
 
 getObjectsMap :: GenParser Char st (Map ObjectId Object) 
 getObjectsMap = getMap getObjectBody
