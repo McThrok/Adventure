@@ -2,11 +2,11 @@ module ActionModel
 where
 
 import Control.Monad.Trans.State
-import Data.List
+import qualified Data.List as L
 import Data.Map.Lazy hiding (foldl,map)
 import DataModel
 
-data Exp = Leaf String | Not Exp | And Exp Exp | Or Exp Exp
+data Exp = Leaf [String] | Not Exp | And Exp Exp | Or Exp Exp
 
 evalExp :: Exp -> Bool
 evalExp (Leaf val) = True
@@ -14,11 +14,9 @@ evalExp (Not exp) = not $ evalExp exp
 evalExp (And e1 e2) = evalExp e1 && evalExp e2
 evalExp (Or e1 e2) = evalExp e1 || evalExp e2
 
-type ActionType = [Instruction]
-data Instruction = Print String | Change String ChangeType String | IfStatement Exp [Instruction]
+data Instruction = Print String | Change [String] ChangeType String | IfStatement Exp [Instruction]
 
 data ChangeType = Add | Delete | Assign
-
 
 checkDataContains :: GameData -> [String] -> Bool
 checkDataContains gameData ("locations":tail) = checkLocationContains (locations gameData) tail
@@ -36,5 +34,17 @@ checkObjectsContains :: Map ObjectId Object -> [String] -> Bool
 checkObjectsContains objects [id] = member id objects
 checkObjectsContains objects [id, "flags", flag] = member id objects && elem flag (objectFlags(objects ! id))
 checkObjectsContains _ _= False
+
+
+
+evalChange :: [String] -> ChangeType -> String -> GameStateT ()
+evalChange  ["flags", flag] change value = modify (\s -> s {gameFlags = (evalChangeFlags (gameFlags s) change value)})
+
+
+evalChangeFlags :: [Flag] -> ChangeType -> String -> [Flag]
+evalChangeFlags flags Add value = value:flags
+evalChangeFlags flags Delete value = L.delete value flags
+evalChangeFlags flags _ _ = flags
+
 
 
