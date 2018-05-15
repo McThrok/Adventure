@@ -1,6 +1,7 @@
 module Parser where
 import Text.ParserCombinators.Parsec
 import Data.Map.Lazy hiding (foldl,map)
+import qualified Data.Set as S
 
 import DataModel
 
@@ -19,7 +20,7 @@ adventureFile = do
     comma
     useActions <- getString "use actions:" >> getMap getUseActionBody
     comma
-    flags <- getString "flags:" >> getFlagList
+    flags <- getString "flags:" >> getFlagSet
     eof
     return (GameData locations current backpack actions useActions flags)
 
@@ -33,7 +34,7 @@ getLocationBody = do
     comma
     objects <- getObjectsMap
     comma
-    flags <- getFlagList
+    flags <- getFlagSet
     getString ")"
     return (Location description moves objects flags)
 
@@ -61,7 +62,7 @@ getObjectBody = do
     comma
     useAction <- getWord
     comma
-    flags <- getFlagList
+    flags <- getFlagSet
     getString ")"
     return (Object info interAction useAction flags)
 
@@ -88,8 +89,8 @@ getInfo = do
     string "\""
     return ("\"" ++ content ++ "\"")
 
-getFlagList :: GenParser Char st [String]
-getFlagList = sepBy getWord (comma)
+getFlagSet :: GenParser Char st (S.Set Flag)
+getFlagSet = sepBy getWord (comma) >>= return . S.fromList
 
 getMap :: GenParser Char st a -> GenParser Char st (Map String a)
 getMap getBody = do

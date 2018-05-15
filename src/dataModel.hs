@@ -3,20 +3,21 @@ where
 
 import Control.Monad.Trans.State
 import Data.List
+import Data.Set
 import Data.Map.Lazy hiding (foldl,map)
 
 data Object = Object{
     info::String,
     interact::ActionId,
     use::ActionId,
-    objectFlags::[Flag] -- includes canBeTaken
+    objectFlags::Set Flag -- includes canBeTaken
 }
 
 data Location = Location{
     description::String,
     moves::Map Direction LocationId,
     objects::Map ObjectId Object,
-    locationFlags::[Flag]
+    locationFlags::Set Flag
 }
 
 data GameData = GameData{
@@ -25,7 +26,7 @@ data GameData = GameData{
     backpack::Map ObjectId Object,
     interActions::Map ActionId Action,
     useActions::Map ActionId (ObjectId, Action),
-    gameFlags::[Flag] -- include Won and Lost
+    gameFlags::Set Flag -- include Won and Lost
 }
 
 
