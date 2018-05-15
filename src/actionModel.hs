@@ -36,3 +36,5 @@ checkObjectsContains :: Map ObjectId Object -> [String] -> Bool
 checkObjectsContains objects [id] = member id objects
 checkObjectsContains objects [id, "flags", flag] = member id objects && elem flag (objectFlags(objects ! id))
 checkObjectsContains _ _= False
+
+

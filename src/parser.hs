@@ -68,15 +68,15 @@ getObjectBody = do
 getWord :: GenParser Char st String
 getWord = many (alphaNum <|> (char '_')) 
 
-
 getString :: String-> GenParser Char st String
-getString [] = return ""
-getString (c:cs) = do
-    optional (char '\n')
-    char c
-    optional (char '\n')
-    tail <- getString cs
-    return (c:tail)
+getString str = do
+    many getWhite
+    string str
+    many getWhite
+    return str
+
+getWhite :: GenParser Char st Char
+getWhite = oneOf "\n\t "
 
 comma :: GenParser Char st String
 comma = getString ","
