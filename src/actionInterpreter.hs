@@ -34,47 +34,41 @@ checkObjects _ _= False
 
 
 
-evalChange :: [String] -> ChangeType -> String -> GameStateT ()
+evalChange :: [String] -> ChangeType -> ChangeValue -> GameStateT ()
 evalChange ("locations":tail) change value = modify (\s -> s {locations = (evalLocations tail change value (locations s))})
-evalChange ["current"] Assign value = modify (\s -> s {current = value})
+evalChange ["current"] Assign (StringValue value) = modify (\s -> s {current = value})
 evalChange ("backpack":tail) change value = modify (\s -> s {backpack = (evalObjects tail change value (backpack s))})
-evalChange ["flags", flag] change value = modify (\s -> s {gameFlags = (evalFlags change value (gameFlags s))})
+evalChange ["flags", flag] change (StringValue value) = modify (\s -> s {gameFlags = (evalFlags change value (gameFlags s))})
 evalChange _ _ _ = return ()
 
-evalObjects ::[String] -> ChangeType -> String -> Map ObjectId Object -> Map ObjectId Object
-evalObjects [] Delete value = delete value
-evalObjects [id] Assign value = insert id (getMockObject value)
-evalObjects (id:tail) change value =  (\objs -> adjustWithKey (\_ -> evalObject tail change value) id objs)
+evalObjects ::[String] -> ChangeType -> ChangeValue -> Map ObjectId Object -> Map ObjectId Object
+evalObjects [] Delete (StringValue value) = delete value
+evalObjects [id] Assign (ObjectValue value) = insert id value
+evalObjects (id:tail) change (StringValue value) =  (\objs -> adjustWithKey (\_ -> evalObject tail change value) id objs)
 evalObjects _ _ _ = id
 
-evalObject :: [String] -> ChangeType -> String -> Object -> Object
+evalObject :: [String] -> ChangeType -> StringValue -> Object -> Object
 evalObject ["info"] Assign value obj = obj{info = value}
 evalObject ["interact"] Assign value obj = obj{interact = value}
 evalObject ["use"] Assign value obj = obj{use = value}
 evalObject ["flags",flag] change value obj = obj{objectFlags = evalFlags change value (objectFlags obj)}
 evalObject _ _ _ obj = obj
 
-evalLocations ::[String] -> ChangeType -> String -> Map LocationId Location -> Map LocationId Location
-evalLocations [] Delete value = delete value
-evalLocations [id] Assign value = insert id (getMockLocation value)
+evalLocations ::[String] -> ChangeType -> ChangeValue -> Map LocationId Location -> Map LocationId Location
+evalLocations [] Delete (StringValue value) = delete value
+evalLocations [id] Assign (ObjectValue value) = insert id (getMockLocation value)
 evalLocations (id:tail) change value =  (\objs -> adjustWithKey (\_ -> evalLocation tail change value) id objs)
 evalLocations _ _ _ = id
 
-evalLocation :: [String] -> ChangeType -> String -> Location -> Location
-evalLocation ["description"] Assign value loc = loc{description = value}
-evalLocation ["moves"] Delete value loc = loc{moves = delete value (moves loc)}
-evalLocation ["moves",id] Assign value loc = loc{moves = insert id value (moves loc)}
+evalLocation :: [String] -> ChangeType -> ChangeValue -> Location -> Location
+evalLocation ["description"] Assign (StringValue value) loc = loc{description = value}
+evalLocation ["moves"] Delete (StringValue value) loc = loc{moves = delete value (moves loc)}
+evalLocation ["moves",id] Assign (StringValue value) loc = loc{moves = insert id value (moves loc)}
 evalLocation ("objects":tail) change value loc = loc{objects = (evalObjects tail change value (objects loc))}
-evalLocation ["flags",flag] change value loc = loc{locationFlags = evalFlags change value (locationFlags loc)}
+evalLocation ["flags",flag] change (StringValue value) loc = loc{locationFlags = evalFlags change value (locationFlags loc)}
 evalLocation _ _ _ l = l
 
-getMockObject :: String -> Object
-getMockObject s = Object "" "" "" S.empty
-
-getMockLocation :: String -> Location
-getMockLocation s = Location "" (fromList []) (fromList []) S.empty
-
-evalFlags :: ChangeType -> String -> S.Set Flag -> S.Set Flag
+evalFlags :: ChangeType -> Change -> S.Set Flag -> S.Set Flag
 evalFlags Add value = S.insert value 
 evalFlags Delete value = S.delete value 
 evalFlags  _ _ = id

@@ -10,8 +10,7 @@ import DataModel
 import Parser
 
 main::IO ()
--- main =  putStrLn "Hello World" >> return ()
-main = putStrLn "Hello World" >> getLine >>= (putStrLn . show . parseTestFile) >> return () 
+main =  putStrLn "Hello World" >> return ()
 
 -- main::IO()
 -- main = mainLoop
