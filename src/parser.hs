@@ -1,9 +1,11 @@
 module Parser where
+
 import Text.ParserCombinators.Parsec
 import Data.Map.Lazy hiding (foldl,map)
 import qualified Data.Set as S
 
 import DataModel
+import ActionParser
 
 parseAdventureFile :: String -> Either ParseError GameData
 parseAdventureFile input = parse adventureFile "(unknown)" input
@@ -16,14 +18,13 @@ adventureFile = do
     comma
     backpack <- getString "backpack:" >> getObjectsMap
     comma
-    actions <- getString "actions:" >> getMap getActionBody
+    actions <- getString "interactions:" >> getMap getActionBody
     comma
     useActions <- getString "use actions:" >> getMap getUseActionBody
     comma
     flags <- getString "flags:" >> getFlagSet
     eof
     return (GameData locations current backpack actions useActions flags)
-
 
 getLocationBody :: GenParser Char st Location
 getLocationBody = do
@@ -46,9 +47,6 @@ getUseActionBody = do
     action <- getActionBody
     getString ")"
     return (id, action)
-
-getActionBody :: GenParser Char st Action
-getActionBody = return []
 
 getObjectsMap :: GenParser Char st (Map ObjectId Object) 
 getObjectsMap = getMap getObjectBody
@@ -87,7 +85,7 @@ getInfo = do
     string "\""
     content <- many (noneOf "\"") 
     string "\""
-    return ("\"" ++ content ++ "\"")
+    return content
 
 getFlagSet :: GenParser Char st (S.Set Flag)
 getFlagSet = sepBy getWord (comma) >>= return . S.fromList
@@ -107,3 +105,56 @@ getMapElement getBody = do
     body <-getBody
     getString ")"
     return (id,body)
+
+getActionBody :: GenParser Char st Action
+getActionBody = do 
+    getString "{"
+    instructions <- many getInstruction
+    getString "}"
+    return instructions
+
+getInstruction :: GenParser Char st Instruction
+getInstruction = getPrint <|> getChange <|> getIf
+
+getPrint :: GenParser Char st Instruction
+getPrint = do 
+    getString "print"
+    info <- getInfo
+    return (Print info)
+
+getChange :: GenParser Char st Instruction
+getChange = do
+    getWhite
+    prop <- getProperty
+    getWhite
+    change <- getChangeType
+    getWhite
+    value <- getValue
+    return (Change prop change value)
+
+getChangeType:: GenParser Char st ChangeType
+getChangeType = getWord >>= (\w-> case w of
+        "=" -> return Assign
+        "+=" -> return Add
+        "-=" -> return Delete)
+
+getProperty :: GenParser Char st [String]
+getProperty = sepBy getWord (char '.')
+
+getValue :: GenParser Char st ChangeValue
+getValue = (getWord >>= return . StringValue)
+    <|> (getInfo >>= return . StringValue) 
+    <|> (getLocationBody >>= return . LocationValue) 
+    <|> (getObjectBody >>= return . ObjectValue)
+
+getIf :: GenParser Char st Instruction
+getIf = do 
+    getString "if"
+    getString "("
+    exp <- getExp
+    getString ")"
+    action <- getActionBody
+    return (IfStatement exp action)
+
+getExp :: GenParser Char st Exp
+getExp = return (Leaf [])

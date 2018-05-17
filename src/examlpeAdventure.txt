@@ -1,16 +1,39 @@
 locations:
 [
-    (Bedroom,[],[],[])
+    (garden,("",[],
+        [
+            (door,("wooden house door","noneInterAction","open",[closed])),
+            (doormat,( "old 'Welcome' doormat", take_key, "noneInterAction", [key]))
+        ],[]))
+    (house,("old house","","",[]))
 ],
 current:
-    Bedroom,
+    garden
 backpack:
 [
-    (tbo,("test backpack object",[],NonInterAction,NonUseAction))
 ],
-actions:
+interactions:
 [
-]
+    (take_key,{
+        if(locations.garden.flags.key){
+            print "You picked up a key"
+            backpack.key = ("key house","noneInterAction","noneUseAction",[])
+            locations.garden.flags -= key
+        }
+        if(not locations.garden.flags.key)
+        {
+            print "nothing here
+        }
+    })
+],
+use actions:
+[
+    (open,(key,{
+        locations.garden.flags -= closed
+        location.garden.moves.inside = house
+        }
+    ))
+],
 flags:
 [
     TestFlag,

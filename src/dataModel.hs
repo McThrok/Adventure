@@ -6,6 +6,17 @@ import Data.List
 import Data.Set
 import Data.Map.Lazy hiding (foldl,map)
 
+
+data Command = Go | Take | Use | Look | Interact | Inventory | Save | Load | New | Quit | Help
+
+type Direction = String
+type ObjectId = String
+type LocationId = String
+type ActionId = String
+type UseActionId = String
+
+type Flag = String
+
 data Object = Object{
     info::String,
     interact::ActionId,
@@ -29,29 +40,11 @@ data GameData = GameData{
     gameFlags::Set Flag -- include Won and Lost
 }
 
+type GameStateT a = StateT GameData IO a
 
-data Command = Go | Take | Use | Look | Interact | Inventory | Save | Load | New | Quit | Help
-
--- data Action = Add | Delete | Assign
-
--- data Property = Info | Interact | Use | ObjectFlags |
---      Description | Moves | Obects | LocationFlags | 
---      Locations | Current | Backpack | GameFlags | Id String
-
--- data Value = Object Object | Location Location | Movement Dircetion LocationId | Flag Flag | UseAction UseAction | InterAction InterAction
-
-type Direction = String
-type ObjectId = String
-type LocationId = String
-type ActionId = String
-type UseActionId = String
-
-type Flag = String
 type Action = [Instruction]
-
-data Instruction = Print String | Change [String] ChangeType String | IfStatement Exp [Instruction]
+data Instruction = Print String | Change [String] ChangeType ChangeValue | IfStatement Exp Action
 data ChangeType = Add | Delete | Assign
-
+data ChangeValue =  StringValue String | ObjectValue Object | LocationValue Location
 data Exp = Leaf [String] | Not Exp | And Exp Exp | Or Exp Exp
 
-type GameStateT a = StateT GameData IO a
