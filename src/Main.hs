@@ -4,13 +4,27 @@ import Data.Text
 import Data.List
 import Data.Map.Lazy hiding (foldl,map)
 import Control.Monad
+import System.IO
+import System.IO.Error
 import Prelude hiding (Word)
 
 import DataModel
 import Parser
 
 main::IO ()
-main =  putStrLn "Hello World" >> return ()
+-- main =  putStrLn "Hello World" >> return ()
+main = withFile "qwe.txt" ReadMode process
+
+process :: Handle -> IO ()
+process h = do
+    line <- hGetContents  h
+    parsed <- return (parseAdventureFile line)
+    putStrLn (show parsed)
+    return ()
+
+
+    
+
 
 -- main::IO()
 -- main = mainLoop

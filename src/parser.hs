@@ -12,6 +12,7 @@ parseAdventureFile input = parse adventureFile "(unknown)" input
 
 adventureFile :: GenParser Char st GameData
 adventureFile = do
+    getWhites
     locations <- getString "locations:" >> getMap getLocationBody
     comma
     current <- getString "current:" >> getWord
@@ -65,17 +66,19 @@ getObjectBody = do
     return (Object info interAction useAction flags)
 
 getWord :: GenParser Char st String
-getWord = many (alphaNum <|> (char '_')) 
+getWord = do
+    word <-  many1 (alphaNum <|> (char '_'))
+    getWhites
+    return word
 
 getString :: String-> GenParser Char st String
 getString str = do
-    many getWhite
     string str
-    many getWhite
+    getWhites
     return str
 
-getWhite :: GenParser Char st Char
-getWhite = oneOf "\n\t "
+getWhites :: GenParser Char st String
+getWhites = many (oneOf "\n\t ")
 
 comma :: GenParser Char st String
 comma = getString ","
@@ -88,7 +91,11 @@ getInfo = do
     return content
 
 getFlagSet :: GenParser Char st (S.Set Flag)
-getFlagSet = sepBy getWord (comma) >>= return . S.fromList
+getFlagSet = do 
+    getString "["
+    result <- sepBy getWord (comma)
+    getString "]"
+    return (S.fromList result)
 
 getMap :: GenParser Char st a -> GenParser Char st (Map String a)
 getMap getBody = do
@@ -124,11 +131,11 @@ getPrint = do
 
 getChange :: GenParser Char st Instruction
 getChange = do
-    getWhite
+    getWhites
     prop <- getProperty
-    getWhite
+    getWhites
     change <- getChangeType
-    getWhite
+    getWhites
     value <- getValue
     return (Change prop change value)
 

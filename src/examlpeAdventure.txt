@@ -8,7 +8,7 @@ locations:
     (house,("old house","","",[]))
 ],
 current:
-    garden
+    garden,
 backpack:
 [
 ],
