@@ -50,21 +50,20 @@ parseCommand (s:ss) =  vocCommand !? s >>= (\cmd -> Just (cmd, ss))
 
 executeMenuCommand :: Maybe (Command, [String]) -> IO ()
 executeMenuCommand (Just (Quit, [])) = return ()
-executeMenuCommand (Just (New, [path])) = startGame path
+executeMenuCommand (Just (New, [path])) = startNewGame path
 executeMenuCommand (Just (Load, [path])) = loadGame path
 executeMenuCommand _ =  wrongCommand >> mainMenu
 
 wrongCommand :: IO ()
 wrongCommand = putStrLn "Huh?"
 
-startGame :: String -> IO ()
-startGame path = do
+startNewGame :: String -> IO ()
+startNewGame path = do
     parsedContent <- withFile path ReadMode getGame
     case parsedContent of
         Nothing -> putStrLn "an error occurs during loading" >> mainMenu
         (Just gameData) -> putStrLn "game started" >> runGame gameData
     where getGame h = hGetContents h >>= return . parseAdventureFile
-
 
 loadGame :: String -> IO ()
 loadGame path = do

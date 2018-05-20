@@ -157,11 +157,27 @@ getValue = (getWord >>= return . StringValue)
 getIf :: GenParser Char st Instruction
 getIf = do 
     getString "if"
-    getString "("
     exp <- getExp
-    getString ")"
     action <- getActionBody
     return (IfStatement exp action)
 
 getExp :: GenParser Char st Exp
-getExp = return (Leaf [])
+getExp = getLeaf <|> getNotExp <|> getBinaryExp
+
+getBinaryExp :: GenParser Char st Exp
+getBinaryExp = do
+    getString "("
+    a <- getExp
+    op <- getString "or" <|> getString "and"
+    b <- getExp
+    getString ")"
+    case op of
+        "or" -> return (Or a b)
+        "and" -> return (And a b)
+
+getNotExp :: GenParser Char st Exp
+getNotExp = getString "not" >> getExp >>= return . Not
+
+getLeaf :: GenParser Char st Exp
+getLeaf = getProperty >>= return . Leaf
+
