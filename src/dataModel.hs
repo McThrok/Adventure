@@ -52,6 +52,7 @@ data ChangeType = Add | Delete | Assign deriving (Generic, Show)
 data ChangeValue =  StringValue String | ObjectValue Object | LocationValue Location deriving (Generic, Show)
 data Exp = Leaf [String] | Not Exp | And Exp Exp | Or Exp Exp deriving (Generic, Show)
 
+
 instance Binary GameData
 instance Binary Location
 instance Binary Object
