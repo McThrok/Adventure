@@ -124,10 +124,7 @@ getInstruction :: GenParser Char st Instruction
 getInstruction = getPrint <|> getChange <|> getIf
 
 getPrint :: GenParser Char st Instruction
-getPrint = do 
-    getString "print"
-    info <- getInfo
-    return (Print info)
+getPrint = getString "print" >> getInfo >>= return . Print
 
 getChange :: GenParser Char st Instruction
 getChange = do

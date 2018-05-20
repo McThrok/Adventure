@@ -10,21 +10,17 @@ import Data.Binary hiding (get)
 import Data.Binary.Get (ByteOffset)
 import Control.Monad.Trans.State.Lazy
 import Control.Monad.State (lift)
+import Data.Maybe (isJust, fromJust)
 
 import DataModel
 import Parser
 import Vocabulary
-
--- saveFile :: String -> Handle -> IO ()
--- saveFile content h = do
---     hPutStr h content
 
 main :: IO ()
 main = mainMenu
 
 mainMenu ::IO ()
 mainMenu =  getCommand >>= executeMenuCommand >>= (\result -> if result then mainMenu else return())
-
 
 getCommand :: IO (Maybe (Command, [String]))
 getCommand =  getLine >>= getWords  >>= return . parseCommand 
@@ -68,58 +64,23 @@ gameLoop = lift getCommand >>= executeGameCommand >>= (\result -> if result then
 
 executeGameCommand :: Maybe (Command, [String]) -> GameStateT Bool
 executeGameCommand (Just (Quit, [])) = return False
-executeGameCommand (Just (Save, [path])) = saveGame path
+executeGameCommand (Just (Save, [path])) = saveGame path >> return True
+executeGameCommand (Just (Inventory, [])) = get >>= showInventory >> return True
+executeGameCommand (Just (Inventory, [id])) = get >>= showInventoryObject id>> return True
 executeGameCommand _ = lift wrongCommand >> return True
 
-saveGame :: String -> GameStateT Bool
-saveGame path = get >>= lift . encodeFile path  >> return True
+saveGame :: String -> GameStateT ()
+saveGame path = get >>= lift . encodeFile path  >> return ()
 
--- saveData :: GameData -> Handle -> IO ()
--- saveData gameData h =  hPutStr  h $ unpack $ encode gameData
+showInventory :: GameData -> GameStateT ()
+showInventory gameData = printObjects $ map (\(k, v) -> k) $ toList $ backpack gameData
+    where 
+        printObjects (o:os) = lift (putStrLn o) >> printObjects os
+        printObjects [] = return ()
 
+showInventoryObject :: ObjectId -> GameData -> GameStateT ()
+showInventoryObject id gameData = case  backpack gameData !? id of
+    (Just obj) -> lift $ putStrLn $ info obj
+    Nothing -> return ()
 
-
--- data Command = Go | Take | Use | Look | Interact | Inventory | Save | Load | New | Quit | Help deriving (Generic, Show)
-
--- loadGame path = withFile path ReadMode loadStateFromFile >> return ()
-
--- loadStateFromFile :: Handle -> IO (Maybe GameData)
--- loadStateFromFile h = do
---     content <- hGetContents  h 
---     return (decode content :: GameData)
---     line <- hGetContents  h
---     parsed <- return (parseAdventureFile line)
---     putStrLn (show parsed)  
---     withFile "qqqqqqqqqq.txt" WriteMode (saveFile line)
---     return ()
-
-
-
--- mainLoop::IO()
--- mainLoop = do
---     command <- getLine
---     result <- executeCommand command
---     if result then mainLoop else return ()
-
--- data Word = Go|Take|Quit deriving(Eq,Show)
-
--- data Location = Kitchen|BedRoom
-
--- wordDict:: Map String Word
--- wordDict = fromList [("go",Go),("take",Take),("quit",Quit)]
-
--- executeCommand::String->IO Bool
--- executeCommand command = process $ getWords (splitOn " " command)
-
--- getWords::[String]->Maybe [Word]
--- getWords [] = Just []
--- getWords (s:ss) = (:) <$> (wordDict!? s) <*> (getWords ss)
-
--- process::Maybe [Word]-> IO Bool
--- process Nothing = return True;
--- process (Just []) = return True;
--- process (Just [Quit]) = return False;
--- process (Just words) = processWords words >> return True
-
--- processWords::[Word]->IO ()
--- processWords words = putStrLn (show words) >> return ()
+--  Go | Take | Use | Look | Interact | Inventory | Help deriving (Generic, Show)
