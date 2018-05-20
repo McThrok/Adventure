@@ -7,6 +7,7 @@ import Control.Monad.Trans.State
 import Data.List
 import Data.Set
 import Data.Map.Lazy hiding (foldl,map)
+import Data.Binary
 
 
 data Command = Go | Take | Use | Look | Interact | Inventory | Save | Load | New | Quit | Help deriving (Generic, Show)
@@ -42,6 +43,7 @@ data GameData = GameData{
     gameFlags::Set Flag -- include Won and Lost
 } deriving (Generic, Show)
 
+
 type GameStateT a = StateT GameData IO a
 
 type Action = [Instruction]
@@ -50,3 +52,10 @@ data ChangeType = Add | Delete | Assign deriving (Generic, Show)
 data ChangeValue =  StringValue String | ObjectValue Object | LocationValue Location deriving (Generic, Show)
 data Exp = Leaf [String] | Not Exp | And Exp Exp | Or Exp Exp deriving (Generic, Show)
 
+instance Binary GameData
+instance Binary Location
+instance Binary Object
+instance Binary Instruction
+instance Binary ChangeType
+instance Binary ChangeValue
+instance Binary Exp

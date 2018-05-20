@@ -3,12 +3,12 @@ module Parser where
 import Text.ParserCombinators.Parsec
 import Data.Map.Lazy hiding (foldl,map)
 import qualified Data.Set as S
+import Data.Either.Combinators
 
 import DataModel
-import ActionParser
 
-parseAdventureFile :: String -> Either ParseError GameData
-parseAdventureFile input = parse adventureFile "(unknown)" input
+parseAdventureFile :: String -> Maybe GameData
+parseAdventureFile input = rightToMaybe $ parse adventureFile "(unknown)" input
 
 adventureFile :: GenParser Char st GameData
 adventureFile = do

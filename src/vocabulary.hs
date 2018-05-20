@@ -1,10 +1,10 @@
-module Volcabulary
+module Vocabulary
 where
 
 import Data.Map.Lazy hiding (foldl,map)
 import Prelude hiding (Word)
 
-import DataId
+import DataModel
 
 vocCommand :: Map String Command
 vocCommand = fromList [
