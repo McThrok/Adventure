@@ -168,15 +168,15 @@ getBinaryExp :: GenParser Char st Exp
 getBinaryExp = do
     getString "("
     a <- getExp
-    op <- getString "or" <|> getString "and"
+    op <- getString "||" <|> getString "&&"
     b <- getExp
     getString ")"
     case op of
-        "or" -> return (Or a b)
-        "and" -> return (And a b)
+        "||" -> return (Or a b)
+        "&&" -> return (And a b)
 
 getNotExp :: GenParser Char st Exp
-getNotExp = getString "not" >> getExp >>= return . Not
+getNotExp = getString "!" >> getExp >>= return . Not
 
 getLeaf :: GenParser Char st Exp
 getLeaf = getProperty >>= return . Leaf
