@@ -42,10 +42,15 @@ showInventoryObject id gameData = case backpack gameData !? id of
     Nothing -> return ()
     (Just obj) -> lift $ putStrLn $ info obj
 
-move :: LocationId -> GameData -> GameStateT ()
-move id gameData = case locations gameData !? id of
+move :: Direction -> GameData -> GameStateT ()
+move dir gameData = case moves (locations gameData ! (current gameData)) !? dir of
     Nothing -> return ()
     (Just loc) -> do
-        modify (\s -> s{current = id}) 
+        modify (\s -> s{current = loc}) 
         s <- get
-        lift $ putStrLn $ description  $ locations s ! id 
+        lift $ putStrLn $ description  $ locations s ! loc
+
+        
+
+
+-- | Take | Use | Look | Interact | Help 
