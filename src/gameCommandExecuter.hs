@@ -1,14 +1,14 @@
 module GameCommandExecuter where
 
 import qualified Data.Text as T
-import Data.List
+import qualified Data.List as L
 import Data.Map.Lazy hiding (foldl,map)
 import System.IO
 import System.IO.Error
 import Prelude hiding (Word)
 import Data.Binary hiding (get)
 import Data.Binary.Get (ByteOffset)
-import Control.Monad.Trans.State.Lazy
+import Control.Monad.Trans.State.Lazy as MTSL
 import Control.Monad.State (lift)
 import Data.Maybe (isJust, fromJust)
 
@@ -28,6 +28,7 @@ executeGameCommand (Just (Inventory, [id])) = get >>= showInventoryObject id>> r
 executeGameCommand (Just (Go, [id])) = get >>= move id >> return True
 executeGameCommand (Just (Look, [])) = get >>= lookAround >> return True
 executeGameCommand (Just (Look, [id])) = get >>= look id >> return True
+executeGameCommand (Just (Take, [id])) = get >>= takeObject id >> return True
 executeGameCommand _ = lift wrongCommand >> return True
 
 saveGame :: String -> GameStateT ()
@@ -48,7 +49,7 @@ move :: Direction -> GameData -> GameStateT ()
 move dir gameData = case moves (locations gameData ! (current gameData)) !? dir of
     Nothing -> lift wrongCommand
     (Just loc) -> do
-        modify (\s -> s{current = loc}) 
+        modify (\s -> s {current = loc}) 
         s <- get
         lift $ putStrLn $ description  $ locations s ! loc
 
@@ -60,6 +61,12 @@ look id gameData = case objects (locations gameData ! (current gameData)) !? id 
 lookAround :: GameData -> GameStateT ()
 lookAround  gameData = lift $ putStrLn $ description $ locations gameData ! (current gameData)
 
-
-
--- | Take | Use | Look | Interact | Help 
+takeObject :: ObjectId -> GameData -> GameStateT ()
+takeObject id gameData = let currLocObjects = objects (locations gameData ! (current gameData)) in 
+    case currLocObjects !? id of
+    Nothing -> lift wrongCommand
+    (Just obj) -> do
+        s <- get
+        if elem "canBeTaken" (objectFlags obj)
+            then modify (\s -> s {backpack = (delete id . insert id obj) (backpack s)}) >> lift (putStrLn ("You took " ++ id))
+            else lift wrongCommand
