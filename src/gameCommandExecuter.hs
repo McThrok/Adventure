@@ -29,6 +29,8 @@ executeGameCommand (Just (Go, [id])) = get >>= move id >> return True
 executeGameCommand (Just (Look, [])) = get >>= lookAround >> return True
 executeGameCommand (Just (Look, [id])) = get >>= look id >> return True
 executeGameCommand (Just (Take, [id])) = get >>= takeObject id >> return True
+executeGameCommand (Just (Interact, [id])) = get >>= interactWith id >> return True
+executeGameCommand (Just (Use, [id,"on",idOn ])) = get >>= useObject id idOn>> return True
 executeGameCommand _ = lift wrongCommand >> return True
 
 saveGame :: String -> GameStateT ()
@@ -54,7 +56,7 @@ move dir gameData = case moves (locations gameData ! (current gameData)) !? dir 
         lift $ putStrLn $ description  $ locations s ! loc
 
 look :: ObjectId -> GameData -> GameStateT ()
-look id gameData = case objects (locations gameData ! (current gameData)) !? id of
+look id gameData = case getObjectsInCurrLoc gameData !? id of
     Nothing -> lift wrongCommand
     (Just obj) -> lift $ putStrLn $ info obj
 
@@ -62,17 +64,33 @@ lookAround :: GameData -> GameStateT ()
 lookAround  gameData = lift $ putStrLn $ description $ locations gameData ! (current gameData)
 
 takeObject :: ObjectId -> GameData -> GameStateT ()
-takeObject id gameData = let currLocObjects = objects (locations gameData ! (current gameData)) in 
-    case currLocObjects !? id of
+takeObject id gameData = case (getObjectsInCurrLoc gameData) !? id of
     Nothing -> lift wrongCommand
     (Just obj) -> do
-        s <- get
         if elem "canBeTaken" (objectFlags obj)
             then modify (\s -> s {backpack = (delete id . insert id obj) (backpack s)}) >> lift (putStrLn ("You took " ++ id))
             else lift wrongCommand
 
+interactWith :: ObjectId -> GameData -> GameStateT ()
+interactWith id gameData = case getInterAction id gameData of
+            Nothing -> lift wrongCommand
+            (Just action) -> modify (\s -> s)
 
+getInterAction :: ObjectId -> GameData -> Maybe (Action)
+getInterAction id gameData = getObjectsInCurrLoc gameData !? id >>= return . interAction >>= (interActions gameData !?)
 
+useObject :: ObjectId -> ObjectId -> GameData -> GameStateT ()
+useObject id idOn gameData =  case getUseAction idOn gameData of
+                    Nothing -> lift wrongCommand
+                    (Just (key, action)) -> if id == key
+                        then modify (\s -> s)
+                        else lift wrongCommand
+
+getUseAction :: ObjectId -> GameData -> Maybe (ObjectId, Action)
+getUseAction idOn gameData = getObjectsInCurrLoc gameData !? idOn >>= return . useAction >>= (useActions gameData !?)
+
+getObjectsInCurrLoc :: GameData -> Map ObjectId Object
+getObjectsInCurrLoc gameData= objects (locations gameData ! (current gameData))
 
 
             

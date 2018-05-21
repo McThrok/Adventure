@@ -22,8 +22,8 @@ type Flag = String
 
 data Object = Object{
     info::String,
-    interact::ActionId,
-    use::ActionId,
+    interAction::ActionId,
+    useAction::ActionId,
     objectFlags::Set Flag -- includes canBeTaken
 } deriving (Generic, Show)
 
