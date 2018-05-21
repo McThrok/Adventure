@@ -25,7 +25,9 @@ executeGameCommand (Just (Quit, [])) = return False
 executeGameCommand (Just (Save, [path])) = saveGame path >> return True
 executeGameCommand (Just (Inventory, [])) = get >>= showInventory >> return True
 executeGameCommand (Just (Inventory, [id])) = get >>= showInventoryObject id>> return True
-executeGameCommand (Just (Go, [id])) = get >>= move id>> return True
+executeGameCommand (Just (Go, [id])) = get >>= move id >> return True
+executeGameCommand (Just (Look, [])) = get >>= lookAround >> return True
+executeGameCommand (Just (Look, [id])) = get >>= look id >> return True
 executeGameCommand _ = lift wrongCommand >> return True
 
 saveGame :: String -> GameStateT ()
@@ -39,18 +41,25 @@ showInventory gameData = printObjects $ map (\(k, v) -> k) $ toList $ backpack g
 
 showInventoryObject :: ObjectId -> GameData -> GameStateT ()
 showInventoryObject id gameData = case backpack gameData !? id of
-    Nothing -> return ()
+    Nothing -> lift wrongCommand
     (Just obj) -> lift $ putStrLn $ info obj
 
 move :: Direction -> GameData -> GameStateT ()
 move dir gameData = case moves (locations gameData ! (current gameData)) !? dir of
-    Nothing -> return ()
+    Nothing -> lift wrongCommand
     (Just loc) -> do
         modify (\s -> s{current = loc}) 
         s <- get
         lift $ putStrLn $ description  $ locations s ! loc
 
-        
+look :: ObjectId -> GameData -> GameStateT ()
+look id gameData = case objects (locations gameData ! (current gameData)) !? id of
+    Nothing -> lift wrongCommand
+    (Just obj) -> lift $ putStrLn $ info obj
+
+lookAround :: GameData -> GameStateT ()
+lookAround  gameData = lift $ putStrLn $ description $ locations gameData ! (current gameData)
+
 
 
 -- | Take | Use | Look | Interact | Help 
