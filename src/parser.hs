@@ -6,6 +6,7 @@ import qualified Data.Set as S
 import Data.Either.Combinators
 
 import DataModel
+import ParserHelper
 
 parseAdventureFile :: String -> Maybe GameData
 parseAdventureFile input = rightToMaybe $ parse adventureFile "(unknown)" input
@@ -65,31 +66,6 @@ getObjectBody = do
     getString ")"
     return (Object info interAction useAction flags)
 
-getWord :: GenParser Char st String
-getWord = do
-    word <-  many1 (alphaNum <|> (char '_'))
-    getWhites
-    return word
-
-getString :: String-> GenParser Char st String
-getString str = do
-    string str
-    getWhites
-    return str
-
-getWhites :: GenParser Char st String
-getWhites = many (oneOf "\n\t ")
-
-comma :: GenParser Char st String
-comma = getString ","
-
-getInfo ::  GenParser Char st String
-getInfo = do
-    string "\""
-    content <- many (noneOf "\"") 
-    string "\""
-    return content
-
 getFlagSet :: GenParser Char st (S.Set Flag)
 getFlagSet = do 
     getString "["
@@ -97,22 +73,9 @@ getFlagSet = do
     getString "]"
     return (S.fromList result)
 
-getMap :: GenParser Char st a -> GenParser Char st (Map String a)
-getMap getBody = do
-    getString "["
-    list <- sepBy (getMapElement getBody) (comma)
-    getString "]"
-    return $ fromList list
 
-getMapElement :: GenParser Char st a -> GenParser Char st (String, a)
-getMapElement getBody = do
-    getString "("
-    id <- getWord
-    comma
-    body <-getBody
-    getString ")"
-    return (id,body)
 
+    
 getActionBody :: GenParser Char st Action
 getActionBody = do 
     getString "{"
@@ -142,14 +105,14 @@ getChangeType = getWord >>= (\w-> case w of
         "+=" -> return Add
         "-=" -> return Delete)
 
-getProperty :: GenParser Char st [String]
-getProperty = sepBy getWord (char '.')
-
 getValue :: GenParser Char st ChangeValue
 getValue = (getWord >>= return . StringValue)
     <|> (getInfo >>= return . StringValue) 
     <|> (getLocationBody >>= return . LocationValue) 
     <|> (getObjectBody >>= return . ObjectValue)
+
+
+
 
 getIf :: GenParser Char st Instruction
 getIf = do 
