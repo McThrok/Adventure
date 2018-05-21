@@ -70,3 +70,10 @@ takeObject id gameData = let currLocObjects = objects (locations gameData ! (cur
         if elem "canBeTaken" (objectFlags obj)
             then modify (\s -> s {backpack = (delete id . insert id obj) (backpack s)}) >> lift (putStrLn ("You took " ++ id))
             else lift wrongCommand
+
+
+
+
+
+            
+--  Use  | Interact | Help 
