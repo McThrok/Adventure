@@ -19,3 +19,14 @@ import Game
 
 main :: IO ()
 main = mainMenu
+
+-- main :: IO ()
+-- main = runStateT doSth 1 >>= putStrLn . show
+
+-- doSth :: MyStateT Integer
+-- doSth = Control.Monad.Trans.State.Lazy.put 11 >> qwe 321>> get
+
+-- qwe :: Integer -> MyStateT Integer
+-- qwe a = Control.Monad.Trans.State.Lazy.modify (+ a) >> return 1
+
+-- type MyStateT a = StateT Integer IO a
