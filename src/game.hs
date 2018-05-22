@@ -15,7 +15,7 @@ import Data.Maybe (isJust, fromJust)
 import DataModel
 import Parser
 import Vocabulary
-import GameCommandExecuter (wrongCommand, executeGameCommand)
+import GameCommandExecuter (wrongCommand, checkAndExecute)
 
 mainMenu ::IO ()
 mainMenu =  getCommand >>= executeMenuCommand >>= (\result -> if result then mainMenu else return())
@@ -55,4 +55,4 @@ runGame :: GameData -> IO ()
 runGame gameData = evalStateT gameLoop gameData
 
 gameLoop :: GameStateT ()
-gameLoop = lift getCommand >>= executeGameCommand >>= (\result -> if result then gameLoop else return())
+gameLoop = lift getCommand >>= checkAndExecute >>= (\result -> if result then gameLoop else return())

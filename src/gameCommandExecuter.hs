@@ -20,6 +20,13 @@ import Vocabulary
 wrongCommand :: IO ()
 wrongCommand = putStrLn "Huh?"
 
+checkAndExecute :: Maybe (Command, [String]) -> GameStateT Bool
+checkAndExecute command = (&&) <$> checkGameFinished <*> checkGameFinished
+
+checkGameFinished :: GameStateT Bool
+checkGameFinished = get >>= return . elem "gameFinished" . gameFlags
+
+
 executeGameCommand :: Maybe (Command, [String]) -> GameStateT Bool
 executeGameCommand (Just (Quit, [])) = return False
 executeGameCommand (Just (Save, [path])) = saveGame path >> return True
@@ -31,6 +38,7 @@ executeGameCommand (Just (Look, [id])) = get >>= look id >> return True
 executeGameCommand (Just (Take, [id])) = get >>= takeObject id >> return True
 executeGameCommand (Just (Interact, [id])) = get >>= interactWith id >> return True
 executeGameCommand (Just (Use, [id,"on",idOn ])) = get >>= useObject id idOn>> return True
+executeGameCommand (Just (Help, [])) = lift  printHelp >> return True
 executeGameCommand _ = lift wrongCommand >> return True
 
 saveGame :: String -> GameStateT ()
@@ -92,6 +100,5 @@ getUseAction idOn gameData = getObjectsInCurrLoc gameData !? idOn >>= return . u
 getObjectsInCurrLoc :: GameData -> Map ObjectId Object
 getObjectsInCurrLoc gameData= objects (locations gameData ! (current gameData))
 
-
-            
---  Use  | Interact | Help 
+printHelp :: IO ()
+printHelp = putStrLn "this help is not helpful"
