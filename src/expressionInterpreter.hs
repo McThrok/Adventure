@@ -31,8 +31,3 @@ checkObjects objects [id] = member id objects
 checkObjects objects [id, "flags", flag] = member id objects && S.member flag (objectFlags(objects ! id))
 checkObjects _ _= False
 
-
--- data Instruction = Print String | Change [String] ChangeType ChangeValue | IfStatement Exp Action deriving (Generic, Show)
--- data ChangeType = Add | Delete | Assign deriving (Generic, Show)
--- data ChangeValue =  StringValue String | ObjectValue Object | LocationValue Location deriving (Generic, Show)
--- data Exp = Leaf [String] | Not Exp | And Exp Exp | Or Exp Exp deriving (Generic, Show)
