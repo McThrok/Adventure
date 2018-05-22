@@ -27,7 +27,6 @@ checkAndExecute command = (&&) <$> checkGameFinished <*> checkGameFinished
 checkGameFinished :: GameStateT Bool
 checkGameFinished = get >>= return . elem "gameFinished" . gameFlags
 
-
 executeGameCommand :: Maybe (Command, [String]) -> GameStateT Bool
 executeGameCommand (Just (Quit, [])) = return False
 executeGameCommand (Just (Save, [path])) = saveGame path >> return True

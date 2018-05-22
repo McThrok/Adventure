@@ -16,7 +16,7 @@ import DataModel
 import Parser
 import Vocabulary
 import ChangeActionInterpreter (evalChange)
-import IfStatementInterpreter (evalIfStatement)
+import ExpressionInterpreter (evalExp)
 
 executeAction :: Action -> GameStateT ()
 executeAction [] = return ()
@@ -26,8 +26,7 @@ executeInstruction :: Instruction -> GameStateT ()
 executeInstruction (Print str) = lift (putStrLn str)
 executeInstruction (Change property changeType value) = evalChange property changeType value
 executeInstruction (IfStatement exp action) = do
-    gameData <- get
-    expValue <- return (evalIfStatement exp gameData) 
+    expValue <- evalExp exp 
     if expValue then executeAction action else return ()
 
 

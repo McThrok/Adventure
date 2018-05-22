@@ -1,4 +1,4 @@
-module IfStatementInterpreter where
+module ExpressionInterpreter where
 
 import Control.Monad.Trans.State
 import qualified Data.List as L
@@ -8,20 +8,16 @@ import Prelude hiding (interact)
 
 import DataModel
 
+evalExp :: Exp -> GameStateT Bool
+evalExp (Leaf val) = get >>= return . (checkData val)
+evalExp (Not exp) = evalExp exp >>= return . not
+evalExp (And e1 e2) = (&&) <$> evalExp e1 <*> evalExp e2
+evalExp (Or e1 e2) = (||) <$> evalExp e1 <*> evalExp e2
 
--- evalExp :: Exp -> Bool
--- evalExp (Leaf val) = True
--- evalExp (Not exp) = not $ evalExp exp
--- evalExp (And e1 e2) = evalExp e1 && evalExp e2
--- evalExp (Or e1 e2) = evalExp e1 || evalExp e2
-
-evalIfStatement :: Exp -> GameData -> Bool
-evalIfStatement _ _ = True
-
-checkData :: GameData -> [String] -> Bool
-checkData gameData ("locations":tail) = checkLocation (locations gameData) tail
-checkData gameData ("backpack":tail) = checkObjects (backpack gameData) tail
-checkData gameData ["flags", flag] = S.member flag (gameFlags gameData)
+checkData :: [String] -> GameData -> Bool
+checkData ("locations":tail) gameData = checkLocation (locations gameData) tail
+checkData ("backpack":tail) gameData = checkObjects (backpack gameData) tail
+checkData ["flags", flag] gameData = S.member flag (gameFlags gameData)
 checkData _ _ = False
 
 checkLocation :: Map LocationId Location -> [String] -> Bool
