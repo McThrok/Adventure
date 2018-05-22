@@ -1,8 +1,7 @@
 module Vocabulary
 where
 
-import Data.Map.Lazy hiding (foldl,map)
-import Prelude hiding (Word)
+import Data.Map.Lazy (Map, fromList)
 
 import DataModel
 

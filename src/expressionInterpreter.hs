@@ -1,10 +1,8 @@
 module ExpressionInterpreter where
 
-import Control.Monad.Trans.State
-import qualified Data.List as L
-import qualified Data.Set as S
-import Data.Map.Lazy hiding (foldl,map)
-import Prelude hiding (interact)
+import Control.Monad.Trans.State (get)
+import qualified Data.Set as S (member)
+import Data.Map.Lazy hiding (foldl, map)
 
 import DataModel
 

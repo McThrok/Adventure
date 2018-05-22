@@ -13,7 +13,6 @@ import Control.Monad.State (lift)
 import Data.Maybe (isJust, fromJust)
 
 import DataModel
-import Parser
 import Vocabulary
 import ActionExecuter
 
