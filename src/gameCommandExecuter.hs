@@ -15,6 +15,7 @@ import Data.Maybe (isJust, fromJust)
 import DataModel
 import Parser
 import Vocabulary
+import ActionExecuter
 
 
 wrongCommand :: IO ()
@@ -82,7 +83,7 @@ takeObject id gameData = case (getObjectsInCurrLoc gameData) !? id of
 interactWith :: ObjectId -> GameData -> GameStateT ()
 interactWith id gameData = case getInterAction id gameData of
             Nothing -> lift wrongCommand
-            (Just action) -> modify (\s -> s)
+            (Just action) -> executeAction action
 
 getInterAction :: ObjectId -> GameData -> Maybe (Action)
 getInterAction id gameData = getObjectsInCurrLoc gameData !? id >>= return . interAction >>= (interActions gameData !?)
@@ -91,14 +92,14 @@ useObject :: ObjectId -> ObjectId -> GameData -> GameStateT ()
 useObject id idOn gameData =  case getUseAction idOn gameData of
                     Nothing -> lift wrongCommand
                     (Just (key, action)) -> if id == key
-                        then modify (\s -> s)
+                        then executeAction action
                         else lift wrongCommand
 
 getUseAction :: ObjectId -> GameData -> Maybe (ObjectId, Action)
 getUseAction idOn gameData = getObjectsInCurrLoc gameData !? idOn >>= return . useAction >>= (useActions gameData !?)
 
 getObjectsInCurrLoc :: GameData -> Map ObjectId Object
-getObjectsInCurrLoc gameData= objects (locations gameData ! (current gameData))
+getObjectsInCurrLoc gameData = objects (locations gameData ! (current gameData))
 
 printHelp :: IO ()
 printHelp = putStrLn "this help is not helpful"

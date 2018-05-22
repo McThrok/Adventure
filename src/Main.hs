@@ -18,7 +18,7 @@ import Vocabulary
 import Game
 
 main :: IO ()
-main = mainMenu
+main = putStrLn "qwe\nasd\nzxc" >> mainMenu
 
 -- main :: IO ()
 -- main = runStateT doSth 1 >>= putStrLn . show
