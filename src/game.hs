@@ -40,7 +40,7 @@ startNewGame path = do
         Nothing -> putStrLn "an error occurs during loading"
         (Just gameData) -> putStrLn "game started" >> runGame gameData
     return True
-        where getGame h = hGetContents h >>= return . parseAdventureFile
+        where getGame h = hGetContents h  >>=  (return $!) .  parseAdventureFile 
 
 loadGame :: String -> IO Bool
 loadGame path = do
