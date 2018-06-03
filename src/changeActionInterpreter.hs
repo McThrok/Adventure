@@ -23,7 +23,7 @@ evalObjects (id:tail) change (StringValue value) =  (\objs -> adjustWithKey (\_ 
 evalObjects _ _ _ = id
 
 evalObject :: [String] -> ChangeType -> String -> Object -> Object
-evalObject ["info"] Assign value obj = obj{info = value}
+evalObject ["objectInfo"] Assign value obj = obj{objectInfo = value}
 evalObject ["interAction"] Assign value obj = obj{interAction = value}
 evalObject ["useAction"] Assign value obj = obj{useAction = value}
 evalObject ["flags",flag] change value obj = obj{objectFlags = evalFlags change value (objectFlags obj)}
@@ -36,7 +36,7 @@ evalLocations (id:tail) change value =  (\objs -> adjustWithKey (\_ -> evalLocat
 evalLocations _ _ _ = id
 
 evalLocation :: [String] -> ChangeType -> ChangeValue -> Location -> Location
-evalLocation ["description"] Assign (StringValue value) loc = loc{description = value}
+evalLocation ["locationInfo"] Assign (StringValue value) loc = loc{locationInfo = value}
 evalLocation ["moves"] Delete (StringValue value) loc = loc{moves = delete value (moves loc)}
 evalLocation ["moves",id] Assign (StringValue value) loc = loc{moves = insert id value (moves loc)}
 evalLocation ("objects":tail) change value loc = loc{objects = (evalObjects tail change value (objects loc))}

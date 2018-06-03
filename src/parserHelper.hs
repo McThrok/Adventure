@@ -31,10 +31,14 @@ getInfo = do
     string "\""
     content <- many (noneOf "\"") 
     string "\""
+    getWhites
     return content
 
 getProperty :: GenParser Char st [String]
-getProperty = sepBy getWord (char '.')
+getProperty = do
+    prop <- sepBy (many1 (alphaNum <|> (char '_'))) (char '.')
+    getWhites
+    return prop
 
 getMap :: GenParser Char st a -> GenParser Char st (Map String a)
 getMap getBody = do

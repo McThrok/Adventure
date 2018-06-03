@@ -31,7 +31,7 @@ adventureFile = do
 getLocationBody :: GenParser Char st Location
 getLocationBody = do
     getString "("
-    description <- getInfo
+    info <- getInfo
     comma
     moves <- getMap getWord
     comma
@@ -39,7 +39,7 @@ getLocationBody = do
     comma
     flags <- getFlagSet
     getString ")"
-    return (Location description moves objects flags)
+    return (Location info moves objects flags)
 
 getUseActionBody :: GenParser Char st (ObjectId, Action)
 getUseActionBody = do
@@ -84,32 +84,29 @@ getActionBody = do
     return instructions
 
 getInstruction :: GenParser Char st Instruction
-getInstruction = getPrint <|> getChange <|> getIf
+getInstruction = getPrint  <|>  getIf <|> getChange
 
 getPrint :: GenParser Char st Instruction
 getPrint = getString "print" >> getInfo >>= return . Print
 
 getChange :: GenParser Char st Instruction
 getChange = do
-    getWhites
     prop <- getProperty
-    getWhites
     change <- getChangeType
-    getWhites
     value <- getValue
     return (Change prop change value)
 
 getChangeType:: GenParser Char st ChangeType
-getChangeType = getWord >>= (\w-> case w of
+getChangeType = (getString "=" <|> getString "-=" <|> getString "+=" ) >>= (\w-> case w of
         "=" -> return Assign
         "+=" -> return Add
         "-=" -> return Delete)
-
+            
 getValue :: GenParser Char st ChangeValue
-getValue = (getWord >>= return . StringValue)
-    <|> (getInfo >>= return . StringValue) 
-    <|> (getLocationBody >>= return . LocationValue) 
-    <|> (getObjectBody >>= return . ObjectValue)
+getValue = (getString "id" >> getWord >>= return . StringValue)
+    <|> (getString "info" >> getInfo >>= return . StringValue) 
+    <|> (getString "location" >> getLocationBody >>= return . LocationValue)
+    <|> (getString "object" >> getObjectBody >>= return . ObjectValue)
 
 
 
@@ -122,7 +119,7 @@ getIf = do
     return (IfStatement exp action)
 
 getExp :: GenParser Char st Exp
-getExp = getLeaf <|> getNotExp <|> getBinaryExp
+getExp = getBinaryExp <|> getNotExp <|> getLeaf
 
 getBinaryExp :: GenParser Char st Exp
 getBinaryExp = do

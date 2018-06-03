@@ -21,14 +21,14 @@ type UseActionId = String
 type Flag = String
 
 data Object = Object{
-    info::String,
+    objectInfo::String,
     interAction::ActionId,
     useAction::ActionId,
     objectFlags::Set Flag -- includes canBeTaken
 } deriving (Generic, Show)
 
 data Location = Location{
-    description::String,
+    locationInfo::String,
     moves::Map Direction LocationId,
     objects::Map ObjectId Object,
     locationFlags::Set Flag

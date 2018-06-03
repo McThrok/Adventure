@@ -15,7 +15,7 @@ backpack:
 interactions:
 [
     (take_key,{
-        if(locations.garden.flags.key){
+        if locations.garden.flags.key {
             print "You picked up a key"
             backpack.key = ("key house",none,none,[])
             locations.garden.flags -= key

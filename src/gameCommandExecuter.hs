@@ -52,7 +52,7 @@ showInventory gameData = printObjects $ map (\(k, v) -> k) $ toList $ backpack g
 showInventoryObject :: ObjectId -> GameData -> GameStateT ()
 showInventoryObject id gameData = case backpack gameData !? id of
     Nothing -> lift wrongCommand
-    (Just obj) -> lift $ putStrLn $ info obj
+    (Just obj) -> lift $ putStrLn $ objectInfo obj
 
 move :: Direction -> GameData -> GameStateT ()
 move dir gameData = case moves (locations gameData ! (current gameData)) !? dir of
@@ -60,15 +60,15 @@ move dir gameData = case moves (locations gameData ! (current gameData)) !? dir 
     (Just loc) -> do
         modify (\s -> s {current = loc}) 
         s <- get
-        lift $ putStrLn $ description  $ locations s ! loc
+        lift $ putStrLn $ locationInfo  $ locations s ! loc
 
 look :: ObjectId -> GameData -> GameStateT ()
 look id gameData = case getObjectsInCurrLoc gameData !? id of
     Nothing -> lift wrongCommand
-    (Just obj) -> lift $ putStrLn $ info obj
+    (Just obj) -> lift $ putStrLn $ objectInfo obj
 
 lookAround :: GameData -> GameStateT ()
-lookAround  gameData = lift $ putStrLn $ description $ locations gameData ! (current gameData)
+lookAround  gameData = lift $ putStrLn $ locationInfo $ locations gameData ! (current gameData)
 
 takeObject :: ObjectId -> GameData -> GameStateT ()
 takeObject id gameData = case (getObjectsInCurrLoc gameData) !? id of
