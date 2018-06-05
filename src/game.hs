@@ -51,7 +51,7 @@ loadGame path = do
     return True
 
 runGame :: GameData -> IO ()
-runGame gameData = (putStrLn . show ) gameData >> evalStateT gameLoop gameData
+runGame gameData = evalStateT gameLoop gameData
 
 gameLoop :: GameStateT ()
 gameLoop = lift getCommand >>= checkAndExecute >>= (\result -> if result then gameLoop else return())

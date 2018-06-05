@@ -21,7 +21,7 @@ checkData _ _ = False
 checkLocation :: Map LocationId Location -> [String] -> Bool
 checkLocation locations [id] = member id locations
 checkLocation locations (id:"objects":tail) = member id locations && checkObjects (objects(locations ! id)) tail 
-checkLocation locations [id,"flags",flag] =  member id locations && S.member flag (locationFlags(locations ! id))
+checkLocation locations [id,"flags",flag] = member id locations && S.member flag (locationFlags(locations ! id))
 checkLocation _ _ = False
 
 checkObjects :: Map ObjectId Object -> [String] -> Bool

@@ -15,12 +15,12 @@ backpack:
 interactions:
 [
     (take_key,{
-        if locations.garden.flags.key {
+        if locations.garden.objects.doormat.flags.key {
             print "You picked up a key"
             backpack.key = object ("key house",none,none,[])
-            locations.garden.flags -= id key
+            locations.garden.objects.doormat.flags -= id key
         }
-        if ! locations.garden.flags.key
+        if ! locations.garden.objects.doormat.flags.key
         {
             print "nothing here"
         }
@@ -30,8 +30,8 @@ interactions:
 use actions:
 [
     (open,(key,{
-        locations.garden.flags -= id closed
-        location.garden.moves.inside = id house
+        locations.garden.objects.door.flags -= id closed
+        locations.garden.moves.inside = id house
         }
     ))
 ],
