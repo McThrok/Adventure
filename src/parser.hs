@@ -58,13 +58,16 @@ getObjectBody = do
     getString "("
     info <- getInfo
     comma
-    interAction <- getWord
+    interAction <- getActionId
     comma
-    useAction <- getWord
+    useAction <- getActionId
     comma
     flags <- getFlagSet
     getString ")"
     return (Object info interAction useAction flags)
+
+getActionId ::  GenParser Char st String
+getActionId = getWord <|> (getWhites >> return "")
 
 getFlagSet :: GenParser Char st (S.Set Flag)
 getFlagSet = do 

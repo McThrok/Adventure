@@ -17,7 +17,7 @@ import Vocabulary
 import GameCommandExecuter (wrongCommand, checkAndExecute)
 
 mainMenu ::IO ()
-mainMenu =  getCommand >>= executeMenuCommand >>= (\result -> if result then mainMenu else return())
+mainMenu = getCommand >>= executeMenuCommand >>= (\result -> if result then mainMenu else return())
 
 getCommand :: IO (Maybe (Command, [String]))
 getCommand =  getLine >>= getWords  >>= return . parseCommand 

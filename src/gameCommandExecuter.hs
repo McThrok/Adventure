@@ -21,7 +21,7 @@ wrongCommand :: IO ()
 wrongCommand = putStrLn "Huh?"
 
 checkAndExecute :: Maybe (Command, [String]) -> GameStateT Bool
-checkAndExecute command = (&&) <$>  (not <$> checkGameFinished) <*> executeGameCommand command
+checkAndExecute command = get >>=(lift . putStrLn . show) >> (&&) <$>  (not <$> checkGameFinished) <*> executeGameCommand command
 
 checkGameFinished :: GameStateT Bool
 checkGameFinished = get >>= return . elem "gameFinished" . gameFlags

@@ -2,8 +2,8 @@ locations:
 [
     (garden,("",[],
         [
-            (door,("wooden house door",none,open,[closed])),
-            (doormat,( "old 'Welcome' doormat", take_key, none, [key]))
+            (door,("wooden house door",,open,[closed])),
+            (doormat,( "old 'Welcome' doormat", take_key, , [key]))
         ],[])),
     (house,("old house",[],[],[]))
 ],
@@ -17,7 +17,7 @@ interactions:
     (take_key,{
         if locations.garden.objects.doormat.flags.key {
             print "You picked up a key"
-            backpack.key = object ("key house",none,none,[])
+            backpack.key = object ("key house",,,[])
             locations.garden.objects.doormat.flags -= id key
         }
         if ! locations.garden.objects.doormat.flags.key
