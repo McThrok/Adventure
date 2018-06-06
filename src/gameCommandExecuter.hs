@@ -100,4 +100,14 @@ getObjectsInCurrLoc :: GameData -> Map ObjectId Object
 getObjectsInCurrLoc gameData = objects (locations gameData ! (current gameData))
 
 printHelp :: IO ()
-printHelp = putStrLn "this help is not helpful"
+printHelp = putStrLn "save [path] - save game in [path]\n\
+    \inventory - show all items in inventory\n\
+    \inventory [item] - show description of [item] from inventory\n\
+    \go [destination] - move to destination\n\
+    \look - show location's description\n\
+    \look [object] - show object's description\n\
+    \take [object] - pick up [object]\n\
+    \interact [object] - try interact with [bject]\n\
+    \use [object] on [target] - try use [object] on [target]\n\
+    \help - show all commands\n\
+    \quit - exit to menu" 

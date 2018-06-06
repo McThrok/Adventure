@@ -31,6 +31,7 @@ executeMenuCommand :: Maybe (Command, [String]) -> IO Bool
 executeMenuCommand (Just (Quit, [])) = return False
 executeMenuCommand (Just (New, [path])) = startNewGame path
 executeMenuCommand (Just (Load, [path])) = loadGame path
+executeMenuCommand (Just (Help, [])) = showMenuHelp
 executeMenuCommand _ =  wrongCommand >> return True
 
 startNewGame :: String -> IO Bool
@@ -49,6 +50,13 @@ loadGame path = do
         (Left _) -> putStrLn "an error occurs during loading"
         (Right gameData) -> putStrLn "game loaded" >> runGame gameData 
     return True
+
+showMenuHelp :: IO Bool
+showMenuHelp = putStrLn "new [path] - start new game, [path]  path to the game\n\
+    \load [path] - load game from [path]\n\
+    \help - show all commands\n\
+    \quit - exit" 
+    >> return True
 
 runGame :: GameData -> IO ()
 runGame gameData = evalStateT gameLoop gameData
