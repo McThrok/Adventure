@@ -2,6 +2,7 @@ module GameCommandExecuter where
 
 import qualified Data.Text as T
 import qualified Data.List as L
+import qualified Data.Set as S
 import Data.Map.Lazy hiding (foldl,map)
 import System.IO
 import System.IO.Error
@@ -72,10 +73,14 @@ lookAround  gameData = lift $ putStrLn $ locationInfo $ locations gameData ! (cu
 
 takeObject :: ObjectId -> GameData -> GameStateT ()
 takeObject id gameData = case (getObjectsInCurrLoc gameData) !? id of
-    Nothing -> lift wrongCommand
+    Nothing -> lift wrongCommand    
     (Just obj) -> do
         if elem "canBeTaken" (objectFlags obj)
-            then modify (\s -> s {backpack = (delete id . insert id obj) (backpack s)}) >> lift (putStrLn ("You took " ++ id))
+            then do
+                lift (putStrLn ("You took " ++ id)) 
+                gameData <- get
+                executeAction [Change ["backpack", id] Assign (ObjectValue obj),
+                    Change ["locations", (current gameData), "objects"] Delete (StringValue id)]
             else lift wrongCommand
 
 interactWith :: ObjectId -> GameData -> GameStateT ()

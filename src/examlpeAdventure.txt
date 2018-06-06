@@ -4,8 +4,9 @@ locations:
         [
             (door,("wooden house door",,open,[closed])),
             (doormat,( "old 'Welcome' doormat", take_key, , [key]))
+            (shovel,("small shovel,,,[canBeTaken]))
         ],[])),
-    (house,("old house",[],[],[]))
+    (house,("old house",[(outside,garden)],[],[]))
 ],
 current:
     garden,
