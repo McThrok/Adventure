@@ -3,10 +3,10 @@ locations:
     (garden,("",[],
         [
             (door,("wooden house door",,open,[closed])),
-            (doormat,( "old 'Welcome' doormat", take_key, , [key]))
-            (shovel,("small shovel,,,[canBeTaken]))
+            (doormat,( "old 'Welcome' doormat", takeKey, , [key])),
+            (shovel,("small shovel",,,[canBeTaken]))
         ],[])),
-    (house,("old house",[(outside,garden)],[],[]))
+    (house,("old house",[(outside,garden)],[(chest,("treasure chest",finishGame,,[]))],[]))
 ],
 current:
     garden,
@@ -15,7 +15,7 @@ backpack:
 ],
 interactions:
 [
-    (take_key,{
+    (takeKey,{
         if locations.garden.objects.doormat.flags.key {
             print "You picked up a key"
             backpack.key = object ("key house",,,[])
@@ -25,6 +25,11 @@ interactions:
         {
             print "nothing here"
         }
+    }),
+    (finishGame,{
+        print "You found treasure"
+        print "You won the game"
+        flags += id gameFinished
     })
    
 ],
