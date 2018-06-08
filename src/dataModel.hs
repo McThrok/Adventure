@@ -40,7 +40,7 @@ data GameData = GameData{
     backpack::Map ObjectId Object,
     interActions::Map ActionId Action,
     useActions::Map ActionId (ObjectId, Action),
-    gameFlags::Set Flag -- include gameFinished
+    gameFlags::Set Flag -- includes gameFinished
 } deriving (Generic, Show)
 
 

@@ -7,11 +7,11 @@ locations:
             (shovel,("small shovel",,,[canBeTaken]))
         ],[])),
     (house,("old house",
-    [
-        (outside,garden)
-    ],
-    [
-        (chest,("treasure chest",finishGame,,[]))
+        [
+            (outside,garden)
+        ],
+        [
+            (chest,("treasure chest",finishGame,,[]))
     ],
     []))
 ],

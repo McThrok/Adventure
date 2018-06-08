@@ -37,7 +37,7 @@ executeGameCommand (Just (Look, [])) = get >>= lookAround >> return True
 executeGameCommand (Just (Look, [id])) = get >>= look id >> return True
 executeGameCommand (Just (Take, [id])) = get >>= takeObject id >> return True
 executeGameCommand (Just (Interact, [id])) = get >>= interactWith id >> return True
-executeGameCommand (Just (Use, [id,"on",idOn ])) = get >>= useObject id idOn>> return True
+executeGameCommand (Just (Use, [id,"on",idOn ])) = get >>= useObject id idOn >> return True
 executeGameCommand (Just (Help, [])) = lift  printHelp >> return True
 executeGameCommand _ = lift wrongCommand >> return True
 
