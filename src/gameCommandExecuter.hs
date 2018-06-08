@@ -22,7 +22,7 @@ wrongCommand :: IO ()
 wrongCommand = putStrLn "Huh?"
 
 checkAndExecute :: Maybe (Command, [String]) -> GameStateT Bool
-checkAndExecute command = get >>=(lift . putStrLn . show) >> (&&) <$> executeGameCommand command <*> (not <$> checkGameFinished) 
+checkAndExecute command = (&&) <$> executeGameCommand command <*> (not <$> checkGameFinished) 
 
 checkGameFinished :: GameStateT Bool
 checkGameFinished = get >>= return . elem "gameFinished" . gameFlags
@@ -95,7 +95,7 @@ useObject :: ObjectId -> ObjectId -> GameData -> GameStateT ()
 useObject id idOn gameData =  case getUseAction idOn gameData of
                     Nothing -> lift wrongCommand
                     (Just (key, action)) -> if id == key
-                        then lift ( putStrLn  (show action)) >> executeAction action
+                        then executeAction action
                         else lift wrongCommand
 
 getUseAction :: ObjectId -> GameData -> Maybe (ObjectId, Action)
