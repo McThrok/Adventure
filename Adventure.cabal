@@ -17,5 +17,5 @@ executable Adventure
   hs-source-dirs:      src
   main-is:             Main.hs
   default-language:    Haskell2010
-  build-depends:       base >= 4.7 && < 5, containers, text, mtl, transformers, parsec, binary, either
+  build-depends:       base >= 4.7 && < 5, containers, text, mtl, transformers, parsec, binary
   other-modules:       DataModel, ParserHelper, Parser, Vocabulary, Game, GameCommandExecuter, ActionExecuter, ChangeActionInterpreter, ExpressionInterpreter
