@@ -1,4 +1,4 @@
-module ExpressionInterpreter where
+module ExpressionInterpreter (evalExp) where
 
 import Control.Monad.Trans.State (get)
 import qualified Data.Set as S (member)
@@ -6,6 +6,7 @@ import Data.Map.Lazy hiding (foldl, map)
 
 import DataModel
 
+-- | evaluate expression, value of single leaf if true if gmeStateT contains flag/object/location from leaf
 evalExp :: Exp -> GameStateT Bool
 evalExp (Leaf val) = get >>= return . (checkData val)
 evalExp (Not exp) = evalExp exp >>= return . not

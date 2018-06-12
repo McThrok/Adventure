@@ -1,10 +1,11 @@
-module Vocabulary
+module Vocabulary (vocCommand)
 where
 
 import Data.Map.Lazy (Map, fromList)
 
 import DataModel
 
+-- | map of strings to commands
 vocCommand :: Map String Command
 vocCommand = fromList [
     ("go", Go),

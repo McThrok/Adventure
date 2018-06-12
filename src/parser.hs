@@ -1,4 +1,4 @@
-module Parser where
+module Parser (parseAdventureFile) where
 
 import Text.ParserCombinators.Parsec
 import Data.Map.Lazy hiding (foldl,map)
@@ -8,6 +8,7 @@ import Data.Either
 import DataModel
 import ParserHelper
 
+-- | parsed game definied in path to GameDate
 parseAdventureFile :: String -> Maybe GameData
 parseAdventureFile input = case  (parse adventureFile "(unknown)" input) of
     (Right gameData) -> Just gameData

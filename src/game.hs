@@ -1,4 +1,4 @@
-module Game where
+module Game (mainMenu) where
 
 import qualified Data.Text as T
 
@@ -14,8 +14,9 @@ import Data.Maybe (isJust, fromJust)
 import DataModel
 import Parser
 import Vocabulary
-import GameCommandExecuter (wrongCommand, checkAndExecute)
+import GameCommandExecuter
 
+-- | run game
 mainMenu ::IO ()
 mainMenu = getCommand >>= executeMenuCommand >>= (\result -> if result then mainMenu else return())
 

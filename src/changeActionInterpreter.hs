@@ -1,4 +1,4 @@
-module ChangeActionInterpreter where
+module ChangeActionInterpreter (evalChange) where
 
 import Control.Monad.Trans.State
 import qualified Data.List as L
@@ -8,7 +8,7 @@ import Prelude hiding (interact)
 
 import DataModel
 
-
+-- | evaluate Change action for specific property, changeType and value
 evalChange :: [String] -> ChangeType -> ChangeValue -> GameStateT ()
 evalChange ("locations":tail) change value = modify (\s -> s {locations = (evalLocations tail change value (locations s))})
 evalChange ["current"] Assign (StringValue value) = modify (\s -> s {current = value})

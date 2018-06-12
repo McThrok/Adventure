@@ -1,13 +1,13 @@
-module ActionExecuter where
+module ActionExecuter (executeAction) where
 
 import Control.Monad.State (lift)
 
 import DataModel
 import ChangeActionInterpreter (evalChange)
-import ExpressionInterpreter (evalExp)
+import ExpressionInterpreter
 
 
-
+-- | executes all instructions in Action
 executeAction :: Action -> GameStateT ()
 executeAction [] = return ()
 executeAction (a:as) = executeInstruction a >> executeAction as
@@ -18,5 +18,3 @@ executeInstruction (Change property changeType value) = evalChange property chan
 executeInstruction (IfStatement exp action) = do
     expValue <- evalExp exp 
     if expValue then executeAction action else return ()
-
-

@@ -9,7 +9,7 @@ import Data.Set
 import Data.Map.Lazy hiding (foldl,map)
 import Data.Binary
 
-
+-- | commands for all actions
 data Command = Go | Take | Use | Look | Interact | Inventory | Save | Load | New | Quit | Help deriving (Generic, Show)
 
 type Direction = String

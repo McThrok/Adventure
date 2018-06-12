@@ -1,3 +1,4 @@
+{-# OPTIONS_HADDOCK hide #-}
 module ParserHelper where
 
 import Text.ParserCombinators.Parsec

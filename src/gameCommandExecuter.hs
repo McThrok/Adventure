@@ -1,4 +1,4 @@
-module GameCommandExecuter where
+module GameCommandExecuter (wrongCommand, checkAndExecute) where
 
 import qualified Data.Text as T
 import qualified Data.List as L
@@ -17,10 +17,11 @@ import DataModel
 import Vocabulary
 import ActionExecuter
 
-
+-- | print default message for not know action
 wrongCommand :: IO ()
 wrongCommand = putStrLn "Huh?"
 
+-- | execute action, check if game is finished. If game continues return true.
 checkAndExecute :: Maybe (Command, [String]) -> GameStateT Bool
 checkAndExecute command = (&&) <$> executeGameCommand command <*> (not <$> checkGameFinished) 
 
